@@ -1,89 +1,327 @@
-Project: CivicPulse – Smart Civic Complaint Portal
+CivicPulse – Smart Civic Complaint Portal
+
 A modern Next.js web app for citizens to report civic issues (roads, garbage, drainage, etc.) and for municipal authorities to manage, track, and resolve complaints with geolocation and proof-of-work.
-Features
-Role-based access
-Citizen: sign up, sign in, create complaints with images and location, track status, upvote (“Hype”), mark “Facing Same Issue”, and verify resolutions.
-Authority: log in as municipal officer, view complaints in your region, update statuses (unsolved → read → on the way → in progress → solved), and upload proof images.
-Complaint lifecycle
-Statuses: unsolved, read, on_the_way, in_progress, solved, verified.
-Citizens can verify a solved complaint:
-Yes, Verified → status becomes verified and stays in the Solved tab.
-Not Resolved → status goes back to unsolved (returns to the unsolved list).
-Dashboards
-Citizen dashboard:
-Tabs for Posts (unsolved), Search, Solved, and Profile.
-Region/category filters and search by title, description, or location.
-Authority dashboard:
-Stats cards for Unsolved, In Progress, Solved, Total.
-Tabs for Unsolved, Work In Progress, Search, Solved, and Profile.
-Engagement & social proof
-Hype (likes) and Facing Same Issue counters per complaint.
-Comment threads with role highlighting (Authority vs Citizen).
-Media & evidence
-Image upload required for new complaints (citizen).
-Optional proofImage for authorities when marking solved.
-Maps integration
-Google Maps embed per complaint, centered on its latitude/longitude.
-Gives authorities and citizens spatial context for each issue.
-Tech Stack
-Frontend: Next.js (App Router), React, TypeScript
-Styling/UI: Tailwind CSS + shadcn/ui components
-Auth & state:
-Custom JWT-based auth (/api/auth/signin, /api/auth/signup)
-React context for auth (auth-context) and complaints (complaints-context)
-Backend: Next.js API routes (/app/api/**)
-Database: MongoDB with Mongoose models (User, Complaint)
-Storage: Cloudinary for image uploads
-Maps: Google Maps Embed API
-Getting Started
-1. Install dependencies
-npm install# oryarn install
-2. Environment variables
-Create .env.local in the project root (already present in this repo) with:
-MONGODB_URI=your-mongodb-connection-stringJWT_SECRET=your-jwt-secret# Google MapsGOOGLE_MAPS_API_KEY=your-server-maps-keyNEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-public-maps-key# CloudinaryCLOUDINARY_CLOUD_NAME=your-cloud-nameCLOUDINARY_API_KEY=your-api-keyCLOUDINARY_API_SECRET=your-api-secret# Authority accountsAUTHORITY_USERNAMES=muni_sec5,muni_sec12,admin1AUTHORITY_DEFAULT_PASSWORD=Authority@123
-Notes:
-Make sure the Maps Embed API (and billing) is enabled for the project that owns NEXT_PUBLIC_GOOGLE_MAPS_API_KEY, and that HTTP referrer restrictions allow http://localhost:3000/* (or your dev URL).
-Never commit real secrets; use placeholders or environment injection in production.
-3. Run the dev server
-npm run dev# oryarn dev
-Then open http://localhost:3000 in your browser.
-Accounts & Roles
-Citizen:
-Sign up directly in the app.
-All new signups are citizens by default.
-Authority:
-Usernames listed in AUTHORITY_USERNAMES are treated as authority accounts.
-On first sign-in, if a listed authority user doesn’t exist, the backend auto-creates it with:
-Username: from AUTHORITY_USERNAMES
-Password: AUTHORITY_DEFAULT_PASSWORD (default Authority@123)
+
+🚀 Features
+🔐 Role-Based Access
+
+Citizen
+
+Sign up / Sign in
+
+Create complaints with images and location
+
+Track complaint status
+
+Upvote (“Hype”)
+
+Mark “Facing Same Issue”
+
+Verify resolutions
+
+Authority
+
+Log in as municipal officer
+
+View complaints in assigned region
+
+Update statuses:
+
+unsolved
+
+read
+
+on_the_way
+
+in_progress
+
+solved
+
+verified
+
+Upload proof images when marking as solved
+
+🔄 Complaint Lifecycle
+Status Flow
+unsolved → read → on_the_way → in_progress → solved → verified
+
+Resolution Verification (Citizen)
+
+When a complaint is marked solved, citizens can:
+
+Yes, Verified
+→ Status becomes verified
+→ Remains in the Solved tab
+
+Not Resolved
+→ Status returns to unsolved
+→ Reappears in the Posts tab
+
+📊 Dashboards
+👤 Citizen Dashboard
+
+Tabs:
+
+Posts (Unsolved)
+
+Search
+
+Solved
+
+Profile
+
+Features:
+
+Region & category filters
+
+Search by title, description, or location
+
+🏛 Authority Dashboard
+
+Stats Cards:
+
+Unsolved
+
+In Progress
+
+Solved
+
+Total
+
+Tabs:
+
+Unsolved
+
+Work In Progress
+
+Search
+
+Solved
+
+Profile
+
+❤️ Engagement & Social Proof
+
+Hype (likes)
+
+Facing Same Issue counter
+
+Comment threads
+
+Role highlighting (Authority vs Citizen)
+
+🖼 Media & Evidence
+
+Image upload required for citizens when creating complaints
+
+Optional proofImage for authorities when marking solved
+
+🗺 Maps Integration
+
+Google Maps Embed per complaint
+
+Centered on complaint latitude/longitude
+
+Provides spatial context for issue tracking
+
+🛠 Tech Stack
+
+Frontend
+
+Next.js (App Router)
+
+React
+
+TypeScript
+
+Styling / UI
+
+Tailwind CSS
+
+shadcn/ui
+
+Auth & State
+
+Custom JWT Auth
+
+/api/auth/signin
+
+/api/auth/signup
+
+React Context
+
+auth-context
+
+complaints-context
+
+Backend
+
+Next.js API Routes (/app/api/**)
+
+Database
+
+MongoDB
+
+Mongoose Models (User, Complaint)
+
+Storage
+
+Cloudinary (Image uploads)
+
+Maps
+
+Google Maps Embed API
+
+⚙️ Getting Started
+1️⃣ Install Dependencies
+npm install
+# or
+yarn install
+
+2️⃣ Environment Variables
+
+Create a .env.local file in the project root:
+
+MONGODB_URI=your-mongodb-connection-string
+JWT_SECRET=your-jwt-secret
+
+# Google Maps
+GOOGLE_MAPS_API_KEY=your-server-maps-key
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-public-maps-key
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+# Authority accounts
+AUTHORITY_USERNAMES=muni_sec5,muni_sec12,admin1
+AUTHORITY_DEFAULT_PASSWORD=Authority@123
+
+⚠ Notes
+
+Enable Maps Embed API and billing.
+
+Allow HTTP referrers:
+
+http://localhost:3000/*
+
+
+Never commit real secrets.
+
+3️⃣ Run Development Server
+npm run dev
+# or
+yarn dev
+
+
+Open:
+
+http://localhost:3000
+
+👥 Accounts & Roles
+Citizen
+
+Sign up directly in the app
+
+Default role for new users
+
+Authority
+
+Usernames in AUTHORITY_USERNAMES are treated as authority accounts.
+
+On first sign-in (if user doesn't exist):
+
+Username: From AUTHORITY_USERNAMES
+
+Password: AUTHORITY_DEFAULT_PASSWORD (default: Authority@123)
+
 Role: authority
-These users see the Authority Dashboard and can update complaint statuses.
-Data & Seeding
-On first load, the /api/complaints endpoint:
-Connects to MongoDB and fetches complaints.
-If the collection is empty, it imports mock complaints (covering unsolved, in-progress, solved, and verified states).
-The frontend caches complaints in context and updates them optimistically as actions are performed.
-Key Flows
-Creating a complaint (Citizen):
-Sign in as a citizen.
-Go to “Report Issue”.
-Fill in title, description, category, location, and at least one image.
-Submit to create an unsolved complaint in your region.
-Managing complaints (Authority):
-Sign in with an authority account (e.g. muni_sec5 / Authority@123).
-Use the Unsolved and Work In Progress tabs to triage.
-Update status as work progresses; optionally add a proofImage when solved.
-Verifying resolution (Citizen):
-When your complaint reaches solved, a card appears with Yes, Verified / Not Resolved.
-Click:
-Yes, Verified → complaint stays in Solved tab and becomes verified.
-Not Resolved → complaint moves back to unsolved and shows again in the Posts list.
-Scripts
-npm run dev – start the development server
-npm run build – build for production
-npm start – run the production build
-Future Improvements (Ideas)
-- Email / SMS notifications for status changes.
-- Role for NGOs or RWAs with limited authority features.
-- Advanced analytics and heatmaps for complaint clustering.
-- Rate limiting and spam protection on complaint creation.
+
+These users access the Authority Dashboard.
+
+📦 Data & Seeding
+
+On first load:
+
+/api/complaints
+
+Connects to MongoDB
+
+If empty → Imports mock complaints
+
+unsolved
+
+in-progress
+
+solved
+
+verified
+
+Frontend:
+
+Caches complaints in context
+
+Performs optimistic updates
+
+🔑 Key Flows
+Creating a Complaint (Citizen)
+
+Sign in
+
+Go to Report Issue
+
+Fill:
+
+Title
+
+Description
+
+Category
+
+Location
+
+At least one image
+
+Submit → Creates unsolved complaint
+
+Managing Complaints (Authority)
+
+Sign in (e.g. muni_sec5 / Authority@123)
+
+Use:
+
+Unsolved tab
+
+Work In Progress tab
+
+Update status
+
+Optionally upload proof image when solved
+
+Verifying Resolution (Citizen)
+
+When status becomes solved:
+
+Yes, Verified
+→ Moves to verified
+→ Stays in Solved tab
+
+Not Resolved
+→ Returns to unsolved
+→ Appears in Posts list
+
+📜 Available Scripts
+npm run dev      # Start development server
+npm run build    # Build for production
+npm start        # Run production build
+
+🔮 Future Improvements
+
+Email / SMS notifications
+
+NGO / RWA limited authority roles
+
+Advanced analytics & heatmaps
+
+Rate limiting & spam protection
