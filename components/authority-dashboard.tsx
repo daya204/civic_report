@@ -25,7 +25,7 @@ export function AuthorityDashboard() {
   const [activeTab, setActiveTab] = useState("posts")
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedRegion, setSelectedRegion] = useState(user?.region || "All Regions")
+  const [selectedRegion, setSelectedRegion] = useState(user?.region || "All Districts")
   const [selectedCategory, setSelectedCategory] = useState("all")
 
   // Authority only sees their region by default
@@ -33,7 +33,7 @@ export function AuthorityDashboard() {
     () =>
       complaints.filter((c) => {
         const matchesRegion =
-          selectedRegion === "All Regions" || c.region === selectedRegion
+          selectedRegion === "All Districts" || c.region === selectedRegion
         const matchesCategory =
           selectedCategory === "all" || c.category === selectedCategory
         const matchesSearch =

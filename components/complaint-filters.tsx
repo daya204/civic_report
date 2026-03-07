@@ -26,7 +26,7 @@ export function ComplaintFilters({
     <div className="flex flex-wrap items-center gap-3">
       <Select value={selectedRegion} onValueChange={onRegionChange}>
         <SelectTrigger className="w-[160px] h-9 text-sm">
-          <SelectValue placeholder="Region" />
+          <SelectValue placeholder="District" />
         </SelectTrigger>
         <SelectContent>
           {regions.map((r) => (

@@ -27,14 +27,14 @@ export function CitizenDashboard() {
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null)
   const [showCreate, setShowCreate] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedRegion, setSelectedRegion] = useState("All Regions")
+  const [selectedRegion, setSelectedRegion] = useState("All Districts")
   const [selectedCategory, setSelectedCategory] = useState("all")
 
   const filterComplaints = useMemo(() => {
     return (list: typeof complaints) => {
       return list.filter((c) => {
         const matchesRegion =
-          selectedRegion === "All Regions" || c.region === selectedRegion
+          selectedRegion === "All Districts" || c.region === selectedRegion
         const matchesCategory =
           selectedCategory === "all" || c.category === selectedCategory
         const matchesSearch =

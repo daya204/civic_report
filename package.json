@@ -61,7 +61,8 @@
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.5"
+    "mongoose": "^8.9.5",
+    "leaflet": "^1.9.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.13",
