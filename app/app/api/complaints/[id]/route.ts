@@ -20,27 +20,6 @@ function getToken(request: Request) {
   }
 }
 
-/** Normalize Mongoose document for JSON response (id from _id, ensure comments array). */
-function toResponseComplaint(doc: { _id?: unknown; id?: string; comments?: unknown[]; [k: string]: unknown }) {
-  const raw = doc && typeof (doc as { toObject?: () => Record<string, unknown> }).toObject === "function"
-    ? (doc as { toObject: () => Record<string, unknown> }).toObject()
-    : { ...doc }
-  const id = (raw._id != null && typeof (raw._id as { toString: () => string }).toString === "function")
-    ? (raw._id as { toString: () => string }).toString()
-    : (raw.id as string) ?? String(raw._id)
-  const comments = Array.isArray(raw.comments)
-    ? raw.comments.map((c: Record<string, unknown>, i: number) => ({
-        id: c.id ?? `cm-${i}-${Date.now()}`,
-        userId: c.userId,
-        userName: c.userName,
-        userRole: c.userRole,
-        content: c.content,
-        createdAt: typeof c.createdAt === "string" ? c.createdAt : new Date().toISOString(),
-      }))
-    : []
-  return { ...raw, id, comments }
-}
-
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -169,12 +148,17 @@ export async function PATCH(
       return NextResponse.json({ error: "Complaint not found" }, { status: 404 })
     }
 
-    const complaint = toResponseComplaint(updated as Record<string, unknown>)
+    // Ensure likedByCurrentUser is accurate in the response, especially for toggleLike
     const likedByCurrentUser =
-      user && Array.isArray((complaint as Record<string, unknown>).likedBy)
-        ? ((complaint as Record<string, unknown>).likedBy as string[]).includes(user.sub)
+      user && Array.isArray((updated as any).likedBy)
+        ? ((updated as any).likedBy as string[]).includes(user.sub)
         : false
-    const complaintData = { ...complaint, likedByCurrentUser }
+
+    const complaintData = {
+      ...(updated.toObject ? updated.toObject() : (updated as any)),
+      likedByCurrentUser,
+    }
+
     return NextResponse.json({ complaint: complaintData }, { status: 200 })
   } catch (error) {
     console.error(error)

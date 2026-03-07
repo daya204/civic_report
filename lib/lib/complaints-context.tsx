@@ -1,7 +1,8 @@
- "use client"
+"use client"
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 import type { Complaint, ComplaintStatus, Comment } from "./types"
+import { mockComplaints } from "./mock-data"
 
 interface ComplaintsContextType {
   complaints: Complaint[]
@@ -28,7 +29,7 @@ export function ComplaintsProvider({ children }: { children: ReactNode }) {
       try {
         const res = await fetch("/api/complaints")
         if (!res.ok) {
-          setComplaints([])
+          setComplaints(mockComplaints)
           return
         }
         const data = await res.json()
@@ -39,8 +40,7 @@ export function ComplaintsProvider({ children }: { children: ReactNode }) {
           }))
         )
       } catch {
-        // On error, show nothing instead of local-only or mock data
-        setComplaints([])
+        setComplaints(mockComplaints)
       }
     }
     void loadComplaints()
@@ -256,14 +256,8 @@ export function ComplaintsProvider({ children }: { children: ReactNode }) {
         })
         if (!res.ok) return
         const { complaint } = await res.json()
-        const nextId = complaint.id ?? complaint._id ?? complaintId
-        const nextComments = Array.isArray(complaint.comments) ? complaint.comments : []
         setComplaints((prev) =>
-          prev.map((c) =>
-            c.id === complaintId
-              ? { ...c, ...complaint, id: nextId, comments: nextComments }
-              : c
-          )
+          prev.map((c) => (c.id === complaintId ? { ...c, ...complaint, id: complaint._id ?? complaint.id } : c))
         )
       } catch {
         // ignore
