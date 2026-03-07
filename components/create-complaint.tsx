@@ -1,4 +1,4 @@
- "use client"
+"use client"
 
 import "leaflet/dist/leaflet.css"
 
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select"
 import { ComplaintCard } from "./complaint-card"
 import { Button as IconButton } from "@/components/ui/button"
-import L, { type Map as LeafletMap, type Marker as LeafletMarker, type LayerGroup } from "leaflet"
+import type { Map as LeafletMap, Marker as LeafletMarker, LayerGroup } from "leaflet"
 import { ArrowLeft, Image as ImageIcon, MapPin, Send, X } from "lucide-react"
 
 interface CreateComplaintProps {
@@ -45,79 +45,82 @@ export function CreateComplaint({ onBack }: CreateComplaintProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState("")
 
-  // Leaflet map references
   const mapRef = useRef<LeafletMap | null>(null)
   const markerRef = useRef<LeafletMarker | null>(null)
   const placesLayerRef = useRef<LayerGroup | null>(null)
   const searchTimeoutRef = useRef<number | null>(null)
 
+  const leafletRef = useRef<any>(null)
+
   const GEOAPIFY_API_KEY =
     process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || "14949184d70f47f1a732df67f90c56c2"
 
-  // Configure a default Leaflet marker icon that works with Next.js bundling
-  const defaultMarkerIcon = L.icon({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  })
-
-  const MAX_IMAGE_SIZE_BYTES = 3 * 1024 * 1024 // 3MB
+  const MAX_IMAGE_SIZE_BYTES = 3 * 1024 * 1024
   const MAX_IMAGES = 3
 
-  // Initialize the Leaflet map once on mount
   useEffect(() => {
     if (typeof window === "undefined") return
     if (!GEOAPIFY_API_KEY) return
     if (mapRef.current) return
 
-    const initialLat = 13.0827 // Chennai
-    const initialLng = 80.2707
+    const initMap = async () => {
+      const L = await import("leaflet")
+      leafletRef.current = L
 
-    const map = L.map("complaint-location-map", {
-      center: [initialLat, initialLng],
-      zoom: 12,
-    })
+      const defaultMarkerIcon = L.icon({
+        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      })
 
-    mapRef.current = map
+      const initialLat = 13.0827
+      const initialLng = 80.2707
 
-    const lightLayer = L.tileLayer(
-      `https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`,
-      {
-        attribution:
-          'Powered by Geoapify | © OpenStreetMap contributors',
-        maxZoom: 20,
+      const mapContainer = L.DomUtil.get("complaint-location-map")
+
+      if (mapContainer != null) {
+        ;(mapContainer as any)._leaflet_id = null
       }
-    )
 
-    const satelliteLayer = L.tileLayer(
-      // Geoapify does not provide real satellite imagery; this is an alternative darker style
-      `https://maps.geoapify.com/v1/tile/osm-bright-grey/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`,
-      {
-        attribution:
-          'Powered by Geoapify | © OpenStreetMap contributors',
-        maxZoom: 20,
-      }
-    )
+      const map = L.map("complaint-location-map", {
+        center: [initialLat, initialLng],
+        zoom: 12,
+      })
 
-    lightLayer.addTo(map)
+      mapRef.current = map
 
-    // Store both layers on the map instance for easy toggling
-    ;(map as any)._baseLayers = { lightLayer, satelliteLayer }
+      const lightLayer = L.tileLayer(
+        `https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`,
+        {
+          attribution: "Powered by Geoapify | © OpenStreetMap contributors",
+          maxZoom: 20,
+        }
+      )
 
-    // Create layer group for nearby places
-    placesLayerRef.current = L.layerGroup().addTo(map)
+      const satelliteLayer = L.tileLayer(
+        `https://maps.geoapify.com/v1/tile/osm-bright-grey/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`,
+        {
+          attribution: "Powered by Geoapify | © OpenStreetMap contributors",
+          maxZoom: 20,
+        }
+      )
 
-    // Allow placing marker by clicking on map
-    map.on("click", (e: L.LeafletMouseEvent) => {
-      handleSetLocationFromCoords(e.latlng.lat, e.latlng.lng, "map-click")
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+      lightLayer.addTo(map)
+      ;(map as any)._baseLayers = { lightLayer, satelliteLayer }
+
+      placesLayerRef.current = L.layerGroup().addTo(map)
+
+      map.on("click", (e: any) => {
+        handleSetLocationFromCoords(e.latlng.lat, e.latlng.lng, "map-click")
+      })
+    }
+
+    initMap()
   }, [GEOAPIFY_API_KEY])
 
-  // Helper to toggle between light and alternative tiles
   const toggleBaseLayer = () => {
     const map = mapRef.current as any
     if (!map || !map._baseLayers) return
@@ -132,7 +135,6 @@ export function CreateComplaint({ onBack }: CreateComplaintProps) {
     }
   }
 
-  // Reverse geocode to get district and human-readable location
   const fetchReverseGeocode = async (lat: number, lng: number) => {
     try {
       const url = new URL("https://api.geoapify.com/v1/geocode/reverse")
@@ -144,10 +146,9 @@ export function CreateComplaint({ onBack }: CreateComplaintProps) {
       const res = await fetch(url.toString())
       if (!res.ok) return
       const data = await res.json()
-      const feature = data.features?.[0]
-      if (!feature) return
 
-      const props = feature.properties || {}
+      const props = data.features?.[0]?.properties || {}
+
       const districtName =
         props.state_district ||
         props.county ||
@@ -155,22 +156,22 @@ export function CreateComplaint({ onBack }: CreateComplaintProps) {
         props.suburb ||
         props.state ||
         ""
-      const formatted = props.formatted || [props.name, props.street, props.city]
-        .filter(Boolean)
-        .join(", ")
+
+      const formatted =
+        props.formatted ||
+        [props.name, props.street, props.city].filter(Boolean).join(", ")
 
       setDistrict(districtName)
       setLocation(formatted || `${lat.toFixed(6)}, ${lng.toFixed(6)}`)
-    } catch {
-      // ignore network errors, keep existing values
-    }
+    } catch {}
   }
 
-  // Fetch nearby schools, hospitals, and police stations using Geoapify Places API
   const fetchNearbyPlaces = async (lat: number, lng: number) => {
-    if (!placesLayerRef.current) return
+    if (!placesLayerRef.current || !leafletRef.current) return
 
     try {
+      const L = leafletRef.current
+
       const url = new URL("https://api.geoapify.com/v2/places")
       url.searchParams.set(
         "categories",
@@ -194,42 +195,47 @@ export function CreateComplaint({ onBack }: CreateComplaintProps) {
         const name = props.name || "Unnamed place"
         const category = (props.categories || [])[0] || "Place"
 
-        const marker = L.marker([fLat, fLng], { icon: defaultMarkerIcon })
+        const marker = L.marker([fLat, fLng])
         marker.bindPopup(
           `<strong>${name}</strong><br />${category.replace(".", " · ")}`
         )
-        marker.addTo(placesLayerRef.current as LayerGroup)
+        marker.addTo(placesLayerRef.current)
       })
-    } catch {
-      // ignore places errors; they are non-critical
-    }
+    } catch {}
   }
 
-  // Central helper to place or move marker and update map + data
   const handleSetLocationFromCoords = async (
     lat: number,
     lng: number,
     _source: "map-click" | "drag" | "search" | "current-location"
   ) => {
+    if (!leafletRef.current) return
+    const L = leafletRef.current
+
     setLatitude(lat)
     setLongitude(lng)
 
     const map = mapRef.current
-    if (map) {
-      map.setView([lat, lng], 15)
-    }
+    if (map) map.setView([lat, lng], 15)
+
+    const defaultMarkerIcon = L.icon({
+      iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+      shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    })
 
     if (!markerRef.current) {
       markerRef.current = L.marker([lat, lng], {
         draggable: true,
         icon: defaultMarkerIcon,
-      }).addTo(map as LeafletMap)
+      }).addTo(map)
 
-      markerRef.current.on("dragend", () => {
-        const m = markerRef.current
-        if (!m) return
-        const pos = m.getLatLng()
-        void handleSetLocationFromCoords(pos.lat, pos.lng, "drag")
+      markerRef.current!.on("dragend", () => {
+        const pos = markerRef.current!.getLatLng()
+        handleSetLocationFromCoords(pos.lat, pos.lng, "drag")
       })
     } else {
       markerRef.current.setLatLng([lat, lng])

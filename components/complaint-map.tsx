@@ -1,10 +1,10 @@
- "use client"
+"use client"
 
 import "leaflet/dist/leaflet.css"
 
 import { useEffect, useRef } from "react"
 import type { Complaint } from "@/lib/types"
-import L, { type Map as LeafletMap, type Marker as LeafletMarker, type LayerGroup } from "leaflet"
+import type { Map as LeafletMap, Marker as LeafletMarker, LayerGroup } from "leaflet"
 
 interface ComplaintMapProps {
   complaint: Pick<Complaint, "latitude" | "longitude" | "location">
@@ -19,106 +19,114 @@ export function ComplaintMap({ complaint }: ComplaintMapProps) {
   const markerRef = useRef<LeafletMarker | null>(null)
   const placesLayerRef = useRef<LayerGroup | null>(null)
 
-  const defaultMarkerIcon = L.icon({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  })
-
   useEffect(() => {
     if (typeof window === "undefined") return
     if (!GEOAPIFY_API_KEY) return
     if (mapRef.current) return
 
-    const { latitude, longitude, location } = complaint
-    const map = L.map(mapContainerId, {
-      center: [latitude, longitude],
-      zoom: 15,
-    })
-    mapRef.current = map
+    const initMap = async () => {
+      const L = (await import("leaflet")).default
 
-    const lightLayer = L.tileLayer(
-      `https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`,
-      {
-        attribution:
-          'Powered by Geoapify | © OpenStreetMap contributors',
-        maxZoom: 20,
-      }
-    )
+      const defaultMarkerIcon = L.icon({
+        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      })
 
-    const satelliteLayer = L.tileLayer(
-      `https://maps.geoapify.com/v1/tile/osm-bright-grey/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`,
-      {
-        attribution:
-          'Powered by Geoapify | © OpenStreetMap contributors',
-        maxZoom: 20,
-      }
-    )
+      const { latitude, longitude, location } = complaint
 
-    lightLayer.addTo(map)
-    ;(map as any)._baseLayers = { lightLayer, satelliteLayer }
+      const map = L.map(mapContainerId, {
+        center: [latitude, longitude],
+        zoom: 15,
+      })
 
-    placesLayerRef.current = L.layerGroup().addTo(map)
+      mapRef.current = map
 
-    markerRef.current = L.marker([latitude, longitude], {
-      draggable: true,
-      icon: defaultMarkerIcon,
-      title: location,
-    })
-      .addTo(map)
-      .bindPopup(location)
+      const lightLayer = L.tileLayer(
+        `https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`,
+        {
+          attribution: "Powered by Geoapify | © OpenStreetMap contributors",
+          maxZoom: 20,
+        }
+      )
 
-    const fetchNearbyPlaces = async (lat: number, lng: number) => {
-      if (!placesLayerRef.current) return
-      try {
-        const url = new URL("https://api.geoapify.com/v2/places")
-        url.searchParams.set(
-          "categories",
-          "education.school,healthcare.hospital,government.police"
-        )
-        url.searchParams.set("filter", `circle:${lng},${lat},1500`)
-        url.searchParams.set("limit", "30")
-        url.searchParams.set("apiKey", GEOAPIFY_API_KEY)
+      const satelliteLayer = L.tileLayer(
+        `https://maps.geoapify.com/v1/tile/osm-bright-grey/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`,
+        {
+          attribution: "Powered by Geoapify | © OpenStreetMap contributors",
+          maxZoom: 20,
+        }
+      )
 
-        const res = await fetch(url.toString())
-        if (!res.ok) return
-        const data = await res.json()
+      lightLayer.addTo(map)
+      ;(map as any)._baseLayers = { lightLayer, satelliteLayer }
 
-        placesLayerRef.current.clearLayers()
+      placesLayerRef.current = L.layerGroup().addTo(map)
 
-        ;(data.features || []).forEach((feature: any) => {
-          const [fLng, fLat] = feature.geometry?.coordinates || []
-          if (typeof fLat !== "number" || typeof fLng !== "number") return
+      markerRef.current = L.marker([latitude, longitude], {
+        draggable: true,
+        icon: defaultMarkerIcon,
+        title: location,
+      })
+        .addTo(map)
+        .bindPopup(location)
 
-          const props = feature.properties || {}
-          const name = props.name || "Unnamed place"
-          const category = (props.categories || [])[0] || "Place"
+      const fetchNearbyPlaces = async (lat: number, lng: number) => {
+        if (!placesLayerRef.current) return
 
-          const marker = L.marker([fLat, fLng], { icon: defaultMarkerIcon })
-          marker.bindPopup(
-            `<strong>${name}</strong><br />${category.replace(".", " · ")}`
+        try {
+          const url = new URL("https://api.geoapify.com/v2/places")
+          url.searchParams.set(
+            "categories",
+            "education.school,healthcare.hospital,government.police"
           )
-          marker.addTo(placesLayerRef.current as LayerGroup)
-        })
-      } catch {
-        // ignore
+          url.searchParams.set("filter", `circle:${lng},${lat},1500`)
+          url.searchParams.set("limit", "30")
+          url.searchParams.set("apiKey", GEOAPIFY_API_KEY)
+
+          const res = await fetch(url.toString())
+          if (!res.ok) return
+
+          const data = await res.json()
+          placesLayerRef.current.clearLayers()
+
+          ;(data.features || []).forEach((feature: any) => {
+            const [fLng, fLat] = feature.geometry?.coordinates || []
+            if (typeof fLat !== "number" || typeof fLng !== "number") return
+
+            const props = feature.properties || {}
+            const name = props.name || "Unnamed place"
+            const category = (props.categories || [])[0] || "Place"
+
+            const marker = L.marker([fLat, fLng], { icon: defaultMarkerIcon })
+            marker.bindPopup(
+              `<strong>${name}</strong><br />${category.replace(".", " · ")}`
+            )
+            marker.addTo(placesLayerRef.current as LayerGroup)
+          })
+        } catch {
+          // ignore
+        }
       }
+
+      void fetchNearbyPlaces(latitude, longitude)
+
+      markerRef.current.on("dragend", () => {
+        const m = markerRef.current
+        if (!m) return
+
+        const pos = m.getLatLng()
+        void fetchNearbyPlaces(pos.lat, pos.lng)
+      })
     }
 
-    void fetchNearbyPlaces(latitude, longitude)
-
-    markerRef.current.on("dragend", () => {
-      const m = markerRef.current
-      if (!m) return
-      const pos = m.getLatLng()
-      void fetchNearbyPlaces(pos.lat, pos.lng)
-    })
+    initMap()
 
     return () => {
-      map.remove()
+      mapRef.current?.remove()
       mapRef.current = null
       markerRef.current = null
       placesLayerRef.current = null
@@ -131,5 +139,3 @@ export function ComplaintMap({ complaint }: ComplaintMapProps) {
     </div>
   )
 }
-
-
