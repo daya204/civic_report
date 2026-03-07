@@ -93,11 +93,30 @@ export async function PATCH(
         break
       }
       case "faceSameIssue": {
-        updated = await Complaint.findByIdAndUpdate(
-          id,
-          { $inc: { facingSameIssue: 1 } },
-          { new: true }
-        )
+        if (!user) {
+          return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+        const existingFsi = await Complaint.findById(id).lean()
+        if (!existingFsi) {
+          return NextResponse.json({ error: "Complaint not found" }, { status: 404 })
+        }
+        const fsiBy: string[] = Array.isArray((existingFsi as { facingSameIssueBy?: string[] }).facingSameIssueBy)
+          ? (existingFsi as { facingSameIssueBy: string[] }).facingSameIssueBy
+          : []
+        const alreadyFacing = fsiBy.includes(user.sub)
+        if (alreadyFacing) {
+          updated = await Complaint.findByIdAndUpdate(
+            id,
+            { $inc: { facingSameIssue: -1 }, $pull: { facingSameIssueBy: user.sub } },
+            { new: true }
+          )
+        } else {
+          updated = await Complaint.findByIdAndUpdate(
+            id,
+            { $inc: { facingSameIssue: 1 }, $addToSet: { facingSameIssueBy: user.sub } },
+            { new: true }
+          )
+        }
         break
       }
       case "addComment": {
@@ -174,7 +193,10 @@ export async function PATCH(
       user && Array.isArray((complaint as Record<string, unknown>).likedBy)
         ? ((complaint as Record<string, unknown>).likedBy as string[]).includes(user.sub)
         : false
-    const complaintData = { ...complaint, likedByCurrentUser }
+    const facingSameIssueBy = (complaint as Record<string, unknown>).facingSameIssueBy as string[] | undefined
+    const facingSameIssueByCurrentUser =
+      user && Array.isArray(facingSameIssueBy) && facingSameIssueBy.includes(user.sub)
+    const complaintData = { ...complaint, likedByCurrentUser, facingSameIssueByCurrentUser }
     return NextResponse.json({ complaint: complaintData }, { status: 200 })
   } catch (error) {
     console.error(error)

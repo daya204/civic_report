@@ -47,7 +47,8 @@ export async function GET(request: Request) {
           likes: c.likes,
           likedByCurrentUser: false,
           likedBy: [],
-          facingSameIssue: c.facingSameIssue,
+          facingSameIssue: c.facingSameIssue ?? 0,
+          facingSameIssueBy: [],
           comments: c.comments,
           resolvedAt: c.resolvedAt,
           verifiedAt: c.verifiedAt,
@@ -69,14 +70,16 @@ export async function GET(request: Request) {
       return now - verifiedTime <= sevenDaysMs
     })
 
-    // Attach likedByCurrentUser dynamically based on the authenticated user
+    // Attach likedByCurrentUser and facingSameIssueByCurrentUser based on the authenticated user
     const complaintsWithLikeState = visibleComplaints.map((c: any) => {
       const likedBy: string[] = Array.isArray(c.likedBy) ? c.likedBy : []
-      const likedByCurrentUser =
-        user && user.sub ? likedBy.includes(user.sub) : false
+      const facingSameIssueBy: string[] = Array.isArray(c.facingSameIssueBy) ? c.facingSameIssueBy : []
+      const likedByCurrentUser = user && user.sub ? likedBy.includes(user.sub) : false
+      const facingSameIssueByCurrentUser = user && user.sub ? facingSameIssueBy.includes(user.sub) : false
       return {
         ...c,
         likedByCurrentUser,
+        facingSameIssueByCurrentUser,
       }
     })
 
@@ -138,6 +141,7 @@ export async function POST(request: Request) {
       likes: 0,
       likedByCurrentUser: false,
       facingSameIssue: 0,
+      facingSameIssueBy: [],
       comments: [],
     })
 

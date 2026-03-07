@@ -57,13 +57,12 @@ export function CitizenDashboard() {
     [complaints, filterComplaints]
   )
 
-  const solvedComplaints = useMemo(
-    () =>
-      filterComplaints(
-        complaints.filter((c) => ["solved", "verified"].includes(c.status))
-      ),
-    [complaints, filterComplaints]
-  )
+  const solvedComplaints = useMemo(() => {
+    const solved = complaints.filter((c) => ["solved", "verified"].includes(c.status))
+    const byId = new Map<string, (typeof complaints)[0]>()
+    solved.forEach((c) => byId.set(c.id, c))
+    return filterComplaints(Array.from(byId.values()))
+  }, [complaints, filterComplaints])
 
   const allSearchResults = useMemo(
     () => filterComplaints(complaints),

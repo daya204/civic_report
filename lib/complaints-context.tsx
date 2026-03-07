@@ -26,7 +26,11 @@ export function ComplaintsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadComplaints = async () => {
       try {
-        const res = await fetch("/api/complaints")
+        const token =
+          typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null
+        const res = await fetch("/api/complaints", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
         if (!res.ok) {
           setComplaints([])
           return
@@ -36,6 +40,8 @@ export function ComplaintsProvider({ children }: { children: ReactNode }) {
           data.complaints.map((c: any) => ({
             ...c,
             id: c._id ?? c.id,
+            likedByCurrentUser: c.likedByCurrentUser ?? false,
+            facingSameIssueByCurrentUser: c.facingSameIssueByCurrentUser ?? false,
           }))
         )
       } catch {
@@ -75,6 +81,7 @@ export function ComplaintsProvider({ children }: { children: ReactNode }) {
           likes: complaint.likes ?? 0,
           likedByCurrentUser: false,
           facingSameIssue: complaint.facingSameIssue ?? 0,
+          facingSameIssueByCurrentUser: false,
           comments: complaint.comments ?? [],
           createdAt: complaint.createdAt ?? new Date().toISOString(),
           updatedAt: complaint.updatedAt ?? new Date().toISOString(),
@@ -180,12 +187,11 @@ export function ComplaintsProvider({ children }: { children: ReactNode }) {
       setComplaints((prev) =>
         prev.map((c) => {
           if (c.id !== complaintId) return c
-          // Preserve local likedByCurrentUser flag; trust server for counts and other fields
           return {
             ...c,
             ...complaint,
-            id: complaint._id ?? complaint.id,
-            likedByCurrentUser: c.likedByCurrentUser,
+            id: complaint._id ?? complaint.id ?? complaintId,
+            likedByCurrentUser: complaint.likedByCurrentUser ?? c.likedByCurrentUser,
           }
         })
       )
@@ -199,16 +205,17 @@ export function ComplaintsProvider({ children }: { children: ReactNode }) {
       const token =
         typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null
 
-      // Optimistic UI update
+      // Optimistic UI: toggle facingSameIssueByCurrentUser and adjust count
       setComplaints((prev) =>
-        prev.map((c) =>
-          c.id === complaintId
-            ? {
-                ...c,
-                facingSameIssue: c.facingSameIssue + 1,
-              }
-            : c
-        )
+        prev.map((c) => {
+          if (c.id !== complaintId) return c
+          const next = c.facingSameIssueByCurrentUser ?? false
+          return {
+            ...c,
+            facingSameIssueByCurrentUser: !next,
+            facingSameIssue: Math.max(0, c.facingSameIssue + (next ? -1 : 1)),
+          }
+        })
       )
 
       const res = await fetch(`/api/complaints/${complaintId}`, {
@@ -227,7 +234,9 @@ export function ComplaintsProvider({ children }: { children: ReactNode }) {
             ? {
                 ...c,
                 ...complaint,
-                id: complaint._id ?? complaint.id,
+                id: complaint._id ?? complaint.id ?? complaintId,
+                facingSameIssue: complaint.facingSameIssue ?? c.facingSameIssue,
+                facingSameIssueByCurrentUser: complaint.facingSameIssueByCurrentUser ?? c.facingSameIssueByCurrentUser,
               }
             : c
         )

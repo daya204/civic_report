@@ -53,6 +53,7 @@ const complaintSchema = new Schema(
     likedByCurrentUser: { type: Boolean, default: false },
     likedBy: { type: [String], default: [] },
     facingSameIssue: { type: Number, default: 0 },
+    facingSameIssueBy: { type: [String], default: [] },
     comments: [commentSchema],
     resolvedAt: { type: String },
     verifiedAt: { type: String },

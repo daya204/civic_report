@@ -6,6 +6,7 @@ import { useComplaints } from "@/lib/complaints-context"
 import { useAuth } from "@/lib/auth-context"
 import type { ComplaintStatus } from "@/lib/types"
 import { categoryLabels, statusLabels, statusColors } from "@/lib/mock-data"
+import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -28,7 +29,6 @@ import {
   XCircle,
   AlertTriangle,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { ComplaintMap } from "./complaint-map"
 
 interface ComplaintDetailProps {
@@ -221,10 +221,18 @@ export function ComplaintDetail({
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2"
+                className={cn(
+                  "gap-2",
+                  complaint.facingSameIssueByCurrentUser && "border-primary text-primary bg-primary/10"
+                )}
                 onClick={() => faceSameIssue(complaint.id)}
               >
-                <Users className="h-4 w-4" />
+                <Users
+                  className={cn(
+                    "h-4 w-4",
+                    complaint.facingSameIssueByCurrentUser && "fill-primary"
+                  )}
+                />
                 Facing Same Issue ({complaint.facingSameIssue})
               </Button>
             </>

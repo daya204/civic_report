@@ -56,6 +56,7 @@ export interface Complaint {
   likes: number
   likedByCurrentUser: boolean
   facingSameIssue: number
+  facingSameIssueByCurrentUser?: boolean
   comments: Comment[]
   createdAt: string
   updatedAt: string

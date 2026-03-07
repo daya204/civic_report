@@ -61,52 +61,54 @@ export function ProfileView() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <p className="text-2xl font-bold text-foreground">{userComplaints.length}</p>
-          <p className="text-xs text-muted-foreground">Total Posts</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <p className="text-2xl font-bold text-success">
-            {userComplaints.filter((c) => ["solved", "verified"].includes(c.status)).length}
-          </p>
-          <p className="text-xs text-muted-foreground">Resolved</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <p className="text-2xl font-bold text-destructive">
-            {userComplaints.filter((c) => c.status === "unsolved").length}
-          </p>
-          <p className="text-xs text-muted-foreground">Pending</p>
-        </div>
-      </div>
-
-      {/* User's complaints */}
-      <div>
-        <h3 className="text-lg font-semibold text-foreground mb-4">
-          {user.role === "citizen" ? "Your Complaints" : "Managed Cases"}
-        </h3>
-        {userComplaints.length === 0 ? (
-          <div className="rounded-xl border border-border bg-card p-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              {user.role === "citizen"
-                ? "You haven't posted any complaints yet"
-                : "No cases in your history"}
+      {/* Stats - only for citizens; authority dashboard already has top stats */}
+      {user.role === "citizen" && (
+        <div className="grid grid-cols-3 gap-4">
+          <div className="rounded-xl border border-border bg-card p-4 text-center">
+            <p className="text-2xl font-bold text-foreground">{userComplaints.length}</p>
+            <p className="text-xs text-muted-foreground">Total Posts</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4 text-center">
+            <p className="text-2xl font-bold text-success">
+              {userComplaints.filter((c) => ["solved", "verified"].includes(c.status)).length}
             </p>
+            <p className="text-xs text-muted-foreground">Resolved</p>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {userComplaints.map((c) => (
-              <ComplaintCard
-                key={c.id}
-                complaint={c}
-                onSelect={() => {}}
-                compact
-              />
-            ))}
+          <div className="rounded-xl border border-border bg-card p-4 text-center">
+            <p className="text-2xl font-bold text-destructive">
+              {userComplaints.filter((c) => c.status === "unsolved").length}
+            </p>
+            <p className="text-xs text-muted-foreground">Pending</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* User's complaints - only for citizens */}
+      {user.role === "citizen" && (
+        <div>
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Your Complaints
+          </h3>
+          {userComplaints.length === 0 ? (
+            <div className="rounded-xl border border-border bg-card p-8 text-center">
+              <p className="text-sm text-muted-foreground">
+                You haven't posted any complaints yet
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {userComplaints.map((c) => (
+                <ComplaintCard
+                  key={c.id}
+                  complaint={c}
+                  onSelect={() => {}}
+                  compact
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

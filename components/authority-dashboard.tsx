@@ -59,13 +59,14 @@ export function AuthorityDashboard() {
     [regionComplaints]
   )
 
-  const solvedComplaints = useMemo(
-    () =>
-      regionComplaints.filter((c) =>
-        ["solved", "verified"].includes(c.status)
-      ),
-    [regionComplaints]
-  )
+  const solvedComplaints = useMemo(() => {
+    const solved = regionComplaints.filter((c) =>
+      ["solved", "verified"].includes(c.status)
+    )
+    const byId = new Map<string, (typeof regionComplaints)[0]>()
+    solved.forEach((c) => byId.set(c.id, c))
+    return Array.from(byId.values())
+  }, [regionComplaints])
 
   if (selectedComplaintId) {
     return (
