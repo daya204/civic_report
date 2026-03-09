@@ -33,7 +33,7 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-left">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold tracking-tight text-foreground">
           Welcome back
@@ -41,15 +41,6 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
         <p className="text-muted-foreground">
           Sign in to your account to continue
         </p>
-      </div>
-
-      <div className="rounded-xl border border-border/70 bg-muted/40 p-4">
-        <h3 className="text-sm font-semibold text-foreground">How CivicPulse works</h3>
-        <ol className="mt-2 space-y-1 text-sm text-muted-foreground">
-          <li>1. Report a civic issue with details and photos.</li>
-          <li>2. Local authorities review and update complaint status.</li>
-          <li>3. Citizens track progress and verify when resolved.</li>
-        </ol>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -67,7 +58,7 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
           <div className="relative">
-          <Input
+            <Input
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
@@ -101,15 +92,15 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
-          {"Don't have an account? "}
-          <button
-            onClick={onSwitchToSignUp}
-            className="font-medium text-primary hover:underline"
-          >
-            Sign up
-          </button>
-        </p>
+      <p className="pt-1 text-center text-sm text-muted-foreground">
+        {"Don't have an account? "}
+        <button
+          onClick={onSwitchToSignUp}
+          className="font-medium text-primary hover:underline"
+        >
+          Sign up
+        </button>
+      </p>
     </div>
   )
 }
