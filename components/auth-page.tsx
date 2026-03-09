@@ -9,12 +9,12 @@ export function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin")
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       {/* Left panel - branding */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-primary p-12 text-primary-foreground">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between border-r border-border/70 bg-gradient-to-br from-primary via-primary/90 to-accent p-12 text-primary-foreground">
         <div>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-foreground/15">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-foreground/15">
               <Shield className="h-6 w-6" />
             </div>
             <span className="text-xl font-semibold tracking-tight">CivicPulse</span>
@@ -62,10 +62,10 @@ export function AuthPage() {
 
       {/* Right panel - form */}
       <div className="flex w-full flex-col items-center justify-center px-6 py-12 lg:w-1/2">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md rounded-2xl border border-border/70 bg-card/80 p-6 shadow-xl backdrop-blur-sm sm:p-8">
           {/* Mobile branding */}
           <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground">
               <Shield className="h-6 w-6" />
             </div>
             <span className="text-xl font-semibold text-foreground">CivicPulse</span>

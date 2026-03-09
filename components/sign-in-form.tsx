@@ -43,6 +43,15 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
         </p>
       </div>
 
+      <div className="rounded-xl border border-border/70 bg-muted/40 p-4">
+        <h3 className="text-sm font-semibold text-foreground">How CivicPulse works</h3>
+        <ol className="mt-2 space-y-1 text-sm text-muted-foreground">
+          <li>1. Report a civic issue with details and photos.</li>
+          <li>2. Local authorities review and update complaint status.</li>
+          <li>3. Citizens track progress and verify when resolved.</li>
+        </ol>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="username">Username</Label>

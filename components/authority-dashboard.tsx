@@ -119,8 +119,8 @@ export function AuthorityDashboard() {
       <DashboardHeader onProfileClick={() => setActiveTab("profile")} />
 
       <main className="mx-auto max-w-6xl px-4 py-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">
+        <div className="mb-6 rounded-2xl border border-border/70 bg-card/70 p-5 backdrop-blur-sm">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Authority Dashboard
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -130,25 +130,25 @@ export function AuthorityDashboard() {
 
         {/* Stats cards */}
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
             <p className="text-xs font-medium text-muted-foreground">Unsolved</p>
             <p className="mt-1 text-2xl font-bold text-destructive">
               {unsolvedComplaints.length}
             </p>
           </div>
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
             <p className="text-xs font-medium text-muted-foreground">In Progress</p>
             <p className="mt-1 text-2xl font-bold text-primary">
               {inProgressComplaints.length}
             </p>
           </div>
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
             <p className="text-xs font-medium text-muted-foreground">Solved</p>
             <p className="mt-1 text-2xl font-bold text-success">
               {solvedComplaints.length}
             </p>
           </div>
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
             <p className="text-xs font-medium text-muted-foreground">Total</p>
             <p className="mt-1 text-2xl font-bold text-foreground">
               {regionComplaints.length}
@@ -157,8 +157,8 @@ export function AuthorityDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6 p-4 -mx-4">
-            <TabsList className="grid w-full sm:w-auto grid-cols-5 h-10">
+          <div className="sticky top-16 z-40 -mx-4 mb-6 flex flex-col gap-4 border-b border-border/70 bg-background/85 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+            <TabsList className="grid h-11 w-full grid-cols-5 rounded-xl border border-border/70 bg-card/70 sm:w-auto">
               <TabsTrigger value="posts" className="gap-1.5 text-xs sm:text-sm">
                 <AlertCircle className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Unsolved</span>

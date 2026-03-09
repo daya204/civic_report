@@ -137,24 +137,24 @@ export function CitizenDashboard() {
       <DashboardHeader onProfileClick={() => setActiveTab("profile")} />
 
       <main className="mx-auto max-w-6xl px-4 py-6">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-border/70 bg-card/70 p-5 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
               Hello, {user?.name?.split(" ")[0]}
             </h1>
             <p className="text-sm text-muted-foreground">
               Track and report civic issues in your area
             </p>
           </div>
-          <Button onClick={() => setShowCreate(true)} className="gap-2">
+          <Button onClick={() => setShowCreate(true)} className="gap-2 rounded-xl shadow-sm">
             <Plus className="h-4 w-4" />
             Report Issue
           </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6 p-4 -mx-4">
-            <TabsList className="grid w-full sm:w-auto grid-cols-4 h-10">
+          <div className="sticky top-16 z-40 -mx-4 mb-6 flex flex-col gap-4 border-b border-border/70 bg-background/85 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+            <TabsList className="grid h-11 w-full grid-cols-4 rounded-xl border border-border/70 bg-card/70 sm:w-auto">
               <TabsTrigger value="posts" className="gap-1.5 text-xs sm:text-sm">
                 <AlertCircle className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Posts</span>

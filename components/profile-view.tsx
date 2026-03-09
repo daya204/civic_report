@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator"
 import { MapPin, Mail, Phone, Home } from "lucide-react"
 
 interface ProfileViewProps {
-  onSelectComplaint: (id: string) => void
+  onSelectComplaint?: (id: string) => void
 }
 
 export function ProfileView({ onSelectComplaint }: ProfileViewProps) {
@@ -103,7 +103,7 @@ export function ProfileView({ onSelectComplaint }: ProfileViewProps) {
       )}
 
       {/* User's complaints - only for citizens */}
-      {user.role === "citizen" && (
+      {user.role === "citizen" && onSelectComplaint && (
         <div>
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Your Complaints

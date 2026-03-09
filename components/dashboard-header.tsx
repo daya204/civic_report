@@ -23,15 +23,15 @@ export function DashboardHeader({ onProfileClick }: DashboardHeaderProps) {
   if (!user) return null
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-border/70 bg-card/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-sm">
             <Shield className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-lg font-semibold text-foreground">CivicPulse</span>
-            <span className="ml-2 text-xs font-medium text-muted-foreground capitalize rounded-full bg-secondary px-2 py-0.5">
+            <span className="text-lg font-semibold tracking-tight text-foreground">CivicPulse</span>
+            <span className="ml-2 rounded-full border border-border/70 bg-secondary/70 px-2 py-0.5 text-xs font-medium capitalize text-muted-foreground">
               {user.role}
             </span>
           </div>
@@ -41,7 +41,7 @@ export function DashboardHeader({ onProfileClick }: DashboardHeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9"
+            className="relative h-9 w-9 rounded-xl border border-border/70 bg-background/60"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
@@ -50,8 +50,8 @@ export function DashboardHeader({ onProfileClick }: DashboardHeaderProps) {
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
+              <Button variant="ghost" size="sm" className="gap-2 rounded-xl border border-border/70 bg-background/60">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-accent/20 text-sm font-medium text-primary">
                   {user.username.charAt(0)}
                 </div>
                 <span className="hidden sm:inline text-sm">{user.username}</span>
