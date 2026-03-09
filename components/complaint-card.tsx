@@ -1,0 +1,179 @@
+"use client"
+
+import { formatDistanceToNow } from "date-fns"
+import { useComplaints } from "@/lib/complaints-context"
+import { useAuth } from "@/lib/auth-context"
+import type { Complaint } from "@/lib/types"
+import { categoryLabels, statusLabels, statusColors } from "@/lib/mock-data"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  MapPin,
+  ThumbsUp,
+  MessageCircle,
+  Clock,
+  AlertTriangle,
+  ChevronRight,
+  Users,
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+
+interface ComplaintCardProps {
+  complaint: Complaint
+  onSelect: (id: string) => void
+  compact?: boolean
+}
+
+export function ComplaintCard({ complaint, onSelect, compact }: ComplaintCardProps) {
+  const { toggleLike, faceSameIssue } = useComplaints()
+  const { user } = useAuth()
+  const facingByMe = complaint.facingSameIssueByCurrentUser ?? false
+
+  const categoryIcon: Record<string, string> = {
+    road: "Road",
+    garbage: "Garbage",
+    drainage: "Drainage",
+    water_supply: "Water",
+    electricity: "Electric",
+    sanitation: "Sanitation",
+    other: "Other",
+  }
+
+  const imageUrl = complaint.images?.[0]
+
+  return (
+    <article
+      className="group cursor-pointer rounded-xl border border-border bg-card overflow-hidden transition-all hover:border-primary/20 hover:shadow-md"
+      onClick={() => onSelect(complaint.id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && onSelect(complaint.id)}
+      aria-label={`Complaint: ${complaint.title}`}
+    >
+      {/* Complaint image */}
+      {imageUrl && (
+        <div className="relative aspect-video w-full bg-muted">
+          <img
+            src={imageUrl}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        </div>
+      )}
+      <div className="flex flex-col p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0 space-y-3">
+            {/* Top row: category + status */}
+            <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="text-xs font-medium">
+              {categoryIcon[complaint.category] || categoryLabels[complaint.category]}
+            </Badge>
+            <Badge
+              className={cn(
+                "text-xs font-medium border-0",
+                statusColors[complaint.status]
+              )}
+            >
+              {statusLabels[complaint.status]}
+            </Badge>
+          </div>
+
+            {/* Title */}
+            <h3 className="text-base font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+              {complaint.title}
+            </h3>
+
+            {/* Description */}
+            {!compact && (
+              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                {complaint.description}
+              </p>
+            )}
+
+            {/* Location */}
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{complaint.location}</span>
+            </div>
+
+            {/* Interaction buttons with counts */}
+            <div className="flex items-center gap-4 pt-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-8 gap-1.5 px-2 text-xs",
+                complaint.likedByCurrentUser && "text-primary"
+              )}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (user && user.role !== "authority") {
+                  toggleLike(complaint.id)
+                } 
+              }}
+              disabled={user?.role === "authority"}
+              aria-label={`${complaint.likes} likes`}
+            >
+              <ThumbsUp
+                className={cn(
+                  "h-3.5 w-3.5",
+                  complaint.likedByCurrentUser && "fill-primary"
+                )}
+              />
+              {complaint.likes}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-8 gap-1.5 px-2 text-xs",
+                facingByMe && "text-primary"
+              )}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (user && user.role !== "authority") {
+                  faceSameIssue(complaint.id)
+                }
+              }}
+              disabled={user?.role === "authority"}
+              aria-label={`${complaint.facingSameIssue} facing same issue`}
+            >
+              <Users className={cn("h-3.5 w-3.5", facingByMe && "fill-primary")} />
+              <span>{complaint.facingSameIssue}</span>
+            </Button>
+
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <MessageCircle className="h-3.5 w-3.5" />
+              <span>{complaint.comments?.length ?? 0}</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              <span>{formatDistanceToNow(new Date(complaint.createdAt), { addSuffix: true })}</span>
+            </div>
+
+            {complaint.likes >= 50 && (
+              <div className="flex items-center gap-1 text-xs font-medium text-warning-foreground">
+                <AlertTriangle className="h-3.5 w-3.5 text-warning" />
+                <span>High Priority</span>
+              </div>
+            )}
+            </div>
+          </div>
+          <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/50 group-hover:text-primary transition-colors mt-1" />
+        </div>
+
+        {/* Posted by - username */}
+        <div className="mt-3 flex items-center gap-2 border-t border-border/50 pt-3">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+          {complaint.userName.charAt(0)}
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {complaint.userName}
+        </span>
+        </div>
+      </div>
+    </article>
+  )
+}
